@@ -15,8 +15,10 @@ nó quét được hết tất cả các public route
 */
 
 func BuildPublicRoute(app *iris.Application) {
+	fmt.Println(routesRoles)
 	for _, route := range app.GetRoutes() {
 		paddingRoute := correctRoute(route.Name)
+		fmt.Println(paddingRoute)
 		//Nếu không tìm thấy padddingRoute trong map những private route
 		if roles := routesRoles[paddingRoute]; roles == nil {
 			publicRoutes[paddingRoute] = true

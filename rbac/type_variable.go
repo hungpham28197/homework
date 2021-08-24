@@ -16,10 +16,13 @@ const (
 	EDITOR     = 7
 	MAINTAINER = 8
 	SYSOP      = 9 //Role mới
+	USER       = 10
+	GUEST      = 11
+	STAFF      = 12
 )
 
 //Mảng này phải tương ứng với danh sách const khai báo ở trên
-var allRoles = []int{ROOT, ADMIN, STUDENT, TRAINER, SALE, EMPLOYER, AUTHOR, EDITOR, MAINTAINER, SYSOP}
+var allRoles = []int{ROOT, ADMIN, STUDENT, TRAINER, SALE, EMPLOYER, AUTHOR, EDITOR, MAINTAINER, SYSOP, USER, GUEST, STAFF}
 
 //Dùng để in role kiểu int ra string cho dễ hiếu
 var roleName = map[int]string{
@@ -33,6 +36,9 @@ var roleName = map[int]string{
 	EDITOR:     "editor",
 	MAINTAINER: "maintainer",
 	SYSOP:      "system operator",
+	USER:       "user",
+	GUEST:      "guest",
+	STAFF:      "staff",
 }
 
 /*

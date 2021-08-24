@@ -3,6 +3,7 @@ package session
 import (
 	"time"
 
+	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
 )
 
@@ -16,10 +17,25 @@ const (
 /*
 Cấu hình Session Manager
 */
+
+var Sess = sessions.New(sessions.Config{
+	Cookie:       SESSION_COOKIE,
+	AllowReclaim: true,
+	Expires:      time.Hour * 48, /*Có giá trị trong 2 ngày*/
+})
+
+//type Sess *sessions.Sessions
+
 func Init() *sessions.Sessions {
-	return sessions.New(sessions.Config{
-		Cookie:       SESSION_COOKIE,
-		AllowReclaim: true,
-		Expires:      time.Hour * 48, /*Có giá trị trong 2 ngày*/
-	})
+	// Sess := sessions.New(sessions.Config{
+	// 	Cookie:       SESSION_COOKIE,
+	// 	AllowReclaim: true,
+	// 	Expires:      time.Hour * 48, /*Có giá trị trong 2 ngày*/
+	// })
+	// return Sess
+	return Sess
+}
+
+func Destroy(ctx iris.Context) {
+	Sess.Destroy(ctx)
 }

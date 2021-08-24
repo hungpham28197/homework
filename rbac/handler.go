@@ -29,7 +29,6 @@ func Get(party router.Party, relativePath string, roleExp RoleExp, handlers ...c
 
 func Post(party router.Party, relativePath string, roleExp RoleExp, handlers ...context.Handler) {
 	party.Handle(http.MethodPost, relativePath, handlers...)
-
 	assignRoles(http.MethodPost, party.GetRelPath()+relativePath, roleExp())
 }
 

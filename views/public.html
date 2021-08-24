@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Main page</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+  <ul>
+    <li><a href="/private">Danh sach chi tiet user</a></li>
+  </ul>
+  {{ if .authinfo }}
+  <h1>Welcome {{ .authinfo.Fullname }}</h1>
+  <ul>
+    {{range .roles}}
+      <li>{{.}}</li>
+    {{end}}
+  </ul>
+  <a href="javascript:logout()">Logout</a>
+  {{ else }}
+  <h1>Login using JSON</h1>
+  User : <input type="text" id="Email"> <br>
+  Pass : <input type="text" id="Pass"> <br><br>
+  <button onclick="login();">Login</button>
+  <p id="result"></p>
+  {{ end }}
+
+  <h2>Tìm kiếm user</h2>
+	<div>
+		<form action="/public/name" method="post">
+			<input type="text" name="Name">
+      <input type="submit" value="Submit">
+		</form>
+	</div>
+
+  <h1>Danh sách User</h1>
+  <ul>
+    {{range .fullnames}}
+    <li>{{.}}</li>
+    {{end}}
+  </ul>
+
+  <script>
+    function login() {
+      axios.defaults.withCredentials = true;
+      axios.post('http://localhost:8080/loginjson', {
+        Email: $("#Email").val(),
+        Pass: $("#Pass").val()
+      }).then(response => {
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+    }
+    function logout() {
+      axios.defaults.withCredentials = true;
+      axios.get('http://localhost:8080/logoutjson').then(response => {
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+
+    }
+
+    function searchName() {
+      axios.defaults.withCredentials = true;
+      axios.post('http://localhost:8080/public/searchName', {
+        Name: $("#Name").val(),
+      }).then(response => {
+        alert('Kết quả tìm kiếm là: ' + response.data);
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+    }
+  </script>
+</body>
+
+</html>

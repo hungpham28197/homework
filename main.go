@@ -11,8 +11,6 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-const cookieNameForSessionID = "session_id_cookie"
-
 func main() {
 	app := iris.New()
 	logFile := logger.Init()
@@ -36,8 +34,22 @@ func main() {
 
 	app.Get("/", controller.ShowHomePage)
 
-	app.Post("/login", controller.Login)
+	app.Get("/public", controller.ShowPublicPage)
+
+	app.Post("/public/name", controller.PublicSearchName)
+
+	rbac.Get(app, "private", rbac.Allow(11, 12, 7), controller.PrivateUsers)
+
+	rbac.Post(app, "private/create", rbac.Allow(7, 12), controller.PrivateCreateUsers)
+
+	rbac.Post(app, "private/edit", rbac.Allow(7, 12), controller.PrivateUpdateUsers)
+
+	rbac.Post(app, "private/delete", rbac.Allow(7), controller.PrivateDeleteUsers)
+
+	rbac.Post(app, "/login", rbac.AllowAll(), controller.Login)
+
 	app.Post("/loginjson", controller.LoginJSON)
+	rbac.Get(app, "/logoutjson", rbac.AllowAll(), controller.LogoutFromREST)
 
 	template.InitViewEngine(app)
 

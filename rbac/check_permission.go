@@ -42,7 +42,6 @@ func CheckRoutePermission(ctx iris.Context) {
 	}
 
 	allowGoNext := checkUser_RouteRole_Intersect(authinfo.Roles, routesRoles[route])
-
 	if allowGoNext { //Được quyền đi tiếp
 		ctx.Next()
 	} else {
