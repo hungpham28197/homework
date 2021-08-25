@@ -6,6 +6,7 @@ import (
 	"home-work/rbac"
 	"home-work/repo"
 	"home-work/session"
+	"mime/multipart"
 
 	"github.com/TechMaster/eris"
 	"github.com/TechMaster/logger"
@@ -93,6 +94,12 @@ func PrivateCreateUsers(ctx iris.Context) {
 	err := repo.CreateUser(&createUserRequest)
 
 	if err != nil {
+		logger.Log(ctx, eris.NewFrom(err))
+	}
+
+	_, _, errr := ctx.UploadFormFiles("./uploads")
+
+	if errr != nil {
 		logger.Log(ctx, eris.NewFrom(err).BadRequest())
 		return
 	}
@@ -172,4 +179,41 @@ func logout(ctx iris.Context) {
 	}*/
 	//Xoá toàn bộ session và xoá luôn cả Cookie sessionid ở máy người dùng
 	session.Destroy(ctx)
+}
+
+func UploadPhoto(ctx iris.Context) {
+	emailUpload := ctx.FormValue("EmailUpload")
+	_, err := repo.QueryByEmail(emailUpload)
+
+	if err != nil {
+		logger.Log(ctx, eris.NewFrom(err))
+		return
+	}
+
+	uploadfiles, _, err := ctx.UploadFormFiles("./uploads", beforeSave)
+	if err != nil {
+		logger.Log(ctx, eris.NewFrom(err))
+	}
+
+	var avatars []string
+
+	filenames := "Upload successful \n"
+	for _, upload := range uploadfiles {
+		filenames = filenames + upload.Filename + "/n"
+		avatars = append(avatars, upload.Filename)
+	}
+	fmt.Println(avatars[0])
+	errr := repo.UpdateAvatarUser(emailUpload, avatars[0])
+
+	if errr != nil {
+		logger.Log(ctx, eris.NewFrom(errr))
+	}
+
+	_, _ = ctx.WriteString(filenames)
+}
+
+func beforeSave(ctx iris.Context, file *multipart.FileHeader) bool {
+	emailUpload := ctx.FormValue("EmailUpload")
+	file.Filename = emailUpload + "-" + file.Filename
+	return true
 }

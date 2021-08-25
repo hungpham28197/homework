@@ -7,6 +7,7 @@ type User struct {
 	Job      string
 	Email    string
 	Pass     string
+	Avatar   string
 	Roles    Roles
 }
 

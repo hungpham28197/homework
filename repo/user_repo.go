@@ -105,3 +105,15 @@ func GetAllFullname() (fullnames []string) {
 	}
 	return
 }
+
+func UpdateAvatarUser(emailUpload string, avatars string) (err error) {
+	for i := 0; i < len(users); i++ {
+		if users[i].Email == emailUpload {
+			p := users[i]
+			p.Avatar = avatars
+			users[i] = p
+			return nil
+		}
+	}
+	return errors.New("User not found")
+}

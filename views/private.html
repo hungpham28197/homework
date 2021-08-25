@@ -38,6 +38,7 @@
     <li>{{.Birthday}}</li>
     <li>{{.Email}}</li>
     <li>{{.Job}}</li>
+    <li>{{.Avatar}}</li>
     <span>=================================</span>
   </ul>
   {{end}}
@@ -59,6 +60,11 @@
   <button onclick="deleteUser();">Xóa</button>
   <p id="result"></p>
 
+  <h2>Upload ảnh</h2>
+  <form action="/private/upload" method="post" enctype="multipart/form-data">
+    Email: <input type="text" name="EmailUpload"><br>
+    Photo: <input type="file" id="Photo" name="filename"><br><br>
+  <input type="submit">
 
   <script>
     function login() {
