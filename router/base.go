@@ -17,10 +17,10 @@ func RegisterRoute(app *iris.Application) {
 	public.Post("/name", controller.PublicSearchName)
 
 	private := app.Party("private")
-	rbac.Get(private, "", rbac.Allow(rbac.ADMIN, rbac.AUTHOR, rbac.EDITOR), controller.PrivateUsers)
-	rbac.Post(private, "/create", rbac.Allow(rbac.EDITOR, rbac.AUTHOR), controller.PrivateCreateUsers)
-	rbac.Post(private, "/edit", rbac.Allow(rbac.EDITOR, rbac.AUTHOR), controller.PrivateUpdateUsers)
-	rbac.Post(private, "/delete", rbac.Allow(rbac.EDITOR), controller.PrivateDeleteUsers)
+	rbac.Get(private, "", rbac.Allow(rbac.ADMIN, rbac.STUDENT, rbac.MAINTAINER, rbac.SALE), controller.PrivateUsers)
+	rbac.Post(private, "/create", rbac.Allow(rbac.ADMIN, rbac.MAINTAINER, rbac.AUTHOR), controller.PrivateCreateUsers)
+	rbac.Post(private, "/edit", rbac.Allow(rbac.ADMIN, rbac.MAINTAINER, rbac.AUTHOR), controller.PrivateUpdateUsers)
+	rbac.Post(private, "/delete", rbac.Allow(rbac.ADMIN), controller.PrivateDeleteUsers)
 	rbac.Post(private, "/login", rbac.AllowAll(), controller.Login)
 	rbac.Post(private, "/upload", rbac.AllowAll(), iris.LimitRequestBodySize(300000), controller.UploadPhoto)
 }

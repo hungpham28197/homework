@@ -3,6 +3,7 @@ package main
 import (
 	"home-work/router"
 
+	"github.com/TechMaster/core/config"
 	"github.com/TechMaster/core/rbac"
 	"github.com/TechMaster/core/session"
 	"github.com/TechMaster/core/template"
@@ -24,8 +25,15 @@ func main() {
 	app.UseRouter(crs)
 	app.Use(session.Sess.Handler())
 
+	config.ReadConfig("$PWD")
+
+	redisDb := session.InitRedisSession()
+	defer redisDb.Close()
+	app.Use(session.Sess.Handler())
+
 	rbacConfig := rbac.NewConfig()
 	rbacConfig.RootAllow = true
+	rbacConfig.MakeUnassignedRoutePublic = true
 	rbac.Init(rbacConfig) //Khởi động với cấu hình mặc định
 
 	//đặt hàm này trên các hàm đăng ký route - controller
