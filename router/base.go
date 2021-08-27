@@ -8,6 +8,8 @@ import (
 )
 
 func RegisterRoute(app *iris.Application) {
+	app.HandleDir("/", iris.Dir("./uploads"))
+
 	app.Get("/", controller.ShowPublicPage)
 	app.Post("/loginjson", controller.LoginJSON)
 	rbac.Get(app, "/logoutjson", rbac.AllowAll(), controller.LogoutFromREST)
@@ -18,9 +20,10 @@ func RegisterRoute(app *iris.Application) {
 
 	private := app.Party("private")
 	rbac.Get(private, "", rbac.Allow(rbac.ADMIN, rbac.AUTHOR, rbac.EDITOR), controller.GetUsers)
-	rbac.Post(private, "/create", rbac.Allow(rbac.ADMIN, rbac.EDITOR, rbac.AUTHOR), controller.CreateUsers)
+	rbac.Post(private, "/create", rbac.Allow(rbac.ADMIN, rbac.EDITOR, rbac.AUTHOR), iris.LimitRequestBodySize(300000), controller.CreateUser)
 	rbac.Post(private, "/edit", rbac.Allow(rbac.ADMIN, rbac.EDITOR, rbac.AUTHOR), controller.UpdateUser)
-	rbac.Post(private, "/delete", rbac.Allow(rbac.ADMIN, rbac.EDITOR), controller.DeleteUser)
-	rbac.Post(private, "/login", rbac.AllowAll(), controller.Login)
-	rbac.Post(private, "/upload", rbac.AllowAll(), iris.LimitRequestBodySize(300000), controller.UploadPhoto)
+	rbac.Get(private, "/edit/{id}", rbac.Allow(rbac.ADMIN, rbac.AUTHOR, rbac.EDITOR), controller.ShowUpdateUser)
+	rbac.Get(private, "/change-avatar/{id}", rbac.Allow(rbac.ADMIN, rbac.AUTHOR, rbac.EDITOR), controller.ShowChangeAvatar)
+	rbac.Post(private, "/change-avatar/{id}", rbac.Allow(rbac.ADMIN, rbac.EDITOR, rbac.AUTHOR), iris.LimitRequestBodySize(300000), controller.ChangeAvatar)
+	rbac.Post(private, "/delete/{id}", rbac.Allow(rbac.ADMIN, rbac.EDITOR), controller.DeleteUser)
 }

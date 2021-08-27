@@ -4,6 +4,7 @@ import (
 	"home-work/repo"
 	"home-work/router"
 
+	"github.com/TechMaster/core/config"
 	"github.com/TechMaster/core/rbac"
 	"github.com/TechMaster/core/session"
 	"github.com/TechMaster/core/template"
@@ -23,6 +24,11 @@ func main() {
 		AllowCredentials: true,
 	})
 	app.UseRouter(crs)
+
+	config.ReadConfig("$PWD/")
+	redisDb := session.InitRedisSession()
+	defer redisDb.Close()
+
 	app.Use(session.Sess.Handler())
 	repo.Init()
 

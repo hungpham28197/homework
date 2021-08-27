@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Main page</title>
+  <!-- <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"> -->
+</head>
+
+<body>
+
+  {{ if .user }}
+  <h2>Đổi avatar cho {{ .user.FullName }}</h2>
+  <form action="/private/change-avatar/{{ .user.Id }}" method="post" enctype="multipart/form-data">
+    Photo: <input type="file" id="Photo" name="filename"><br><br>
+  <input type="submit" value="Thay đổi">
+
+  {{ end }}
+  <script>
+    function editUser() {
+      axios.defaults.withCredentials = true;
+      axios.post('http://localhost:8080/private/edit', {
+        FullName: $("#NameEdit").val(),
+        Email: $("#EmailEdit").val(),
+      }).then(response => {
+        //alert('Kết quả tìm kiếm là: ' + response.data);
+        //location.reload();
+        window.location.href = "/private";
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+    }
+  </script>
+</body>
+
+</html>
