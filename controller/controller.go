@@ -3,11 +3,12 @@ package controller
 import (
 	"fmt"
 	"home-work/model"
-	"home-work/rbac"
 	"home-work/repo"
-	"home-work/session"
 	"mime/multipart"
 
+	"github.com/TechMaster/core/pmodel"
+	"github.com/TechMaster/core/rbac"
+	"github.com/TechMaster/core/session"
 	"github.com/TechMaster/eris"
 	"github.com/TechMaster/logger"
 	"github.com/kataras/iris/v12"
@@ -42,10 +43,10 @@ func Login(ctx iris.Context) {
 		return
 	}
 
-	session.SetAuthenticated(ctx, model.AuthenInfo{
-		Email:    user.Email,
-		Fullname: user.Fullname,
-		Roles:    user.Roles,
+	session.SetAuthenticated(ctx, pmodel.AuthenInfo{
+		Email: user.Email,
+		User:  user.Fullname,
+		Roles: user.Roles,
 	})
 
 	ctx.Redirect("/")
@@ -53,7 +54,7 @@ func Login(ctx iris.Context) {
 
 func ShowHomePage(ctx iris.Context) {
 	if raw_authinfo := ctx.GetViewData()[session.AUTHINFO]; raw_authinfo != nil {
-		authinfo := raw_authinfo.(*model.AuthenInfo)
+		authinfo := raw_authinfo.(*pmodel.AuthenInfo)
 		ctx.ViewData("roles", rbac.RolesNames(authinfo.Roles))
 	}
 	_ = ctx.View("public")
@@ -160,10 +161,10 @@ func LoginJSON(ctx iris.Context) {
 		return
 	}
 
-	session.SetAuthenticated(ctx, model.AuthenInfo{
-		Fullname: user.Fullname,
-		Email:    user.Email,
-		Roles:    user.Roles,
+	session.SetAuthenticated(ctx, pmodel.AuthenInfo{
+		User:  user.Fullname,
+		Email: user.Email,
+		Roles: user.Roles,
 	})
 	_, _ = ctx.JSON("Login successfully")
 }
@@ -178,7 +179,7 @@ func logout(ctx iris.Context) {
 		logger.Log(ctx, eris.Warning("Bạn chưa login").UnAuthorized())
 	}*/
 	//Xoá toàn bộ session và xoá luôn cả Cookie sessionid ở máy người dùng
-	session.Destroy(ctx)
+	session.Sess.Destroy(ctx)
 }
 
 func UploadPhoto(ctx iris.Context) {

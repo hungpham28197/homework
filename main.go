@@ -1,11 +1,11 @@
 package main
 
 import (
-	"home-work/rbac"
 	"home-work/router"
-	"home-work/session"
-	"home-work/template"
 
+	"github.com/TechMaster/core/rbac"
+	"github.com/TechMaster/core/session"
+	"github.com/TechMaster/core/template"
 	"github.com/TechMaster/logger"
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris/v12"
@@ -22,7 +22,7 @@ func main() {
 		AllowCredentials: true,
 	})
 	app.UseRouter(crs)
-	app.Use(session.Init().Handler())
+	app.Use(session.Sess.Handler())
 
 	rbacConfig := rbac.NewConfig()
 	rbacConfig.RootAllow = true

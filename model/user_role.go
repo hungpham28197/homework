@@ -1,20 +1,12 @@
 package model
 
+import "github.com/TechMaster/core/pmodel"
+
 type User struct {
 	Fullname string
 	Birthday string
 	Sex      string
 	Job      string
-	Email    string
-	Pass     string
 	Avatar   string
-	Roles    Roles
+	pmodel.User
 }
-
-type AuthenInfo struct {
-	Fullname string
-	Email    string
-	Roles    Roles //kiểu map[int]bool
-}
-
-type Roles map[int]interface{}

@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"home-work/model"
-	"home-work/rbac"
+
+	"github.com/TechMaster/core/pmodel"
+	"github.com/TechMaster/core/rbac"
 )
 
 var users = []model.User{
@@ -13,9 +15,11 @@ var users = []model.User{
 		Birthday: "01/06/2000",
 		Sex:      "Male",
 		Job:      "Dev",
-		Email:    "bob@gmail.com",
-		Pass:     "1",
-		Roles:    model.Roles{rbac.GUEST: true},
+		User: pmodel.User{
+			Email: "bob@gmail.com",
+			Pass:  "1",
+			Roles: pmodel.Roles{rbac.ADMIN: true},
+		},
 	},
 
 	{
@@ -23,18 +27,22 @@ var users = []model.User{
 		Birthday: "01/06/1996",
 		Sex:      "Male",
 		Job:      "Dev",
-		Email:    "long@gmail.com",
-		Pass:     "1",
-		Roles:    model.Roles{rbac.STAFF: true},
+		User: pmodel.User{
+			Email: "long@gmail.com",
+			Pass:  "1",
+			Roles: pmodel.Roles{rbac.AUTHOR: true},
+		},
 	},
 	{
 		Fullname: "Pham Van Linh",
 		Birthday: "11/05/2001",
 		Sex:      "Male",
 		Job:      "Dev",
-		Email:    "linh@gmail.com",
-		Pass:     "1",
-		Roles:    model.Roles{rbac.EDITOR: false},
+		User: pmodel.User{
+			Email: "linh@gmail.com",
+			Pass:  "1",
+			Roles: pmodel.Roles{rbac.EDITOR: false},
+		},
 	},
 }
 
