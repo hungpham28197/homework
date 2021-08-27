@@ -3,119 +3,125 @@ package repo
 import (
 	"errors"
 	"fmt"
-	"os"
-	"strings"
+	"home-work/model"
 
-	"github.com/TechMaster/core/pass"
 	"github.com/TechMaster/core/pmodel"
 	"github.com/TechMaster/core/rbac"
-	"github.com/google/uuid"
 )
 
-var users = make(map[string]*pmodel.User)
+var users = []model.User{
+	{
+		Fullname: "Bob",
+		Birthday: "01/06/2000",
+		Sex:      "Male",
+		Job:      "Dev",
+		User: pmodel.User{
+			Email: "bob@gmail.com",
+			Pass:  "1",
+			Roles: pmodel.Roles{rbac.ADMIN: true},
+		},
+	},
 
-func init() {
-	CreateNewUser("Bùi Văn Hiên", "1", "hien@gmail.com", "0123456789", rbac.TRAINER, rbac.MAINTAINER)
-	CreateNewUser("Nguyễn Hàn Duy", "1", "duy@gmail.com", "0123456786", rbac.TRAINER, rbac.STUDENT)
-	CreateNewUser("Phạm Thị Mẫn", "1", "man@gmail.com", "0123456780", rbac.SALE, rbac.STUDENT)
-	CreateNewUser("Trịnh Minh Cường", "1", "cuong@gmail.com", "0123456000", rbac.ADMIN, rbac.TRAINER)
-	CreateNewUser("Nguyễn Thành Long", "1", "long@gmail.com", "0123456001", rbac.STUDENT)
+	{
+		Fullname: "Pham Van Long",
+		Birthday: "01/06/1996",
+		Sex:      "Male",
+		Job:      "Dev",
+		User: pmodel.User{
+			Email: "long@gmail.com",
+			Pass:  "1",
+			Roles: pmodel.Roles{rbac.AUTHOR: true},
+		},
+	},
+	{
+		Fullname: "Pham Van Linh",
+		Birthday: "11/05/2001",
+		Sex:      "Male",
+		Job:      "Dev",
+		User: pmodel.User{
+			Email: "linh@gmail.com",
+			Pass:  "1",
+			Roles: pmodel.Roles{rbac.EDITOR: false},
+		},
+	},
 }
 
-func CreateNewUser(name string, password string, email string, phone string, roles ...int) {
-	hashpass, _ := pass.HashBcryptPass(password)
-	users[email] = &pmodel.User{
-		Id:       uuid.NewString(),
-		FullName: name,
-		Password: hashpass,
-		Email:    email,
-		Phone:    phone,
-		Roles:    roles,
-	}
-}
-
-func QueryByEmail(email string) (user *pmodel.User, err error) {
-	user = users[strings.ToLower(email)]
-	if user == nil {
-		return nil, errors.New("User not found")
-	}
-	return user, nil
-}
-
-func QueryById(id string) (user *pmodel.User, err error) {
+func QueryByEmail(email string) (user *model.User, err error) {
 	for _, v := range users {
-		if v.Id == id {
-			return v, nil
+		if v.Email == email {
+			return &v, nil
 		}
 	}
 	return nil, errors.New("User not found")
 }
 
-func QueryByName(name string) (user *pmodel.User, err error) {
+func QueryByName(name string) (user *model.User, err error) {
 	for _, v := range users {
-		if v.FullName == name {
-			return v, nil
+		if v.Fullname == name {
+			return &v, nil
 		}
 	}
 	return nil, errors.New("User not found")
 }
 
-func CreateUser(user *pmodel.User) (err error) {
+func CreateUser(user *model.User) (err error) {
 	userTmp, err := QueryByEmail(user.Email)
 	if err == nil {
 		msg := fmt.Sprintf("User %s exit", userTmp.Email)
 		return errors.New(msg)
 	}
-	user.Id = uuid.NewString()
-	hashpass, _ := pass.HashBcryptPass(user.Password)
-	user.Password = hashpass
-	users[user.Email] = user
+	users = append(users, *user)
 	return nil
 }
 
-func UpdateUser(user *pmodel.User) (err error) {
-	userTmp, err := QueryByEmail(user.Email)
-	if err != nil {
-		return err
+func UpdateUser(user *model.User) (err error) {
+	for i := 0; i < len(users); i++ {
+		if users[i].Email == user.Email {
+			p := users[i]
+			p = *user
+			users[i] = p
+			return nil
+		}
 	}
-	id := userTmp.Id
-	*userTmp = *user
-	userTmp.Id = id
-	return nil
+	return errors.New("User not found")
 }
 
 func DeleteUser(email string) (err error) {
-	user, err := QueryByEmail(email)
-	if err != nil {
-		return err
+	index := -1
+	for i := 0; i < len(users); i++ {
+		if users[i].Email == email {
+			index = i
+		}
 	}
-	e := os.Remove("./uploads/" + user.Avatar)
-	if e != nil {
-		return e
+	if index > 0 {
+		users = append(users[:index], users[index+1:]...)
+		return nil
 	}
-	delete(users, user.Email)
-	return nil
+	return errors.New("User not found")
 }
 
-func GetAllUser() (rs []pmodel.User) {
+func GetAllUser() (rs []model.User) {
 	for _, v := range users {
-		rs = append(rs, *v)
+		rs = append(rs, v)
 	}
 	return
 }
 
 func GetAllFullname() (fullnames []string) {
 	for _, v := range users {
-		fullnames = append(fullnames, v.FullName)
+		fullnames = append(fullnames, v.Fullname)
 	}
 	return
 }
 
-func UpdateAvatarUser(id string, avatars string) (err error) {
-	user, err := QueryById(id)
-	if err != nil {
-		return err
+func UpdateAvatarUser(emailUpload string, avatars string) (err error) {
+	for i := 0; i < len(users); i++ {
+		if users[i].Email == emailUpload {
+			p := users[i]
+			p.Avatar = avatars
+			users[i] = p
+			return nil
+		}
 	}
-	user.Avatar = avatars
-	return nil
+	return errors.New("User not found")
 }

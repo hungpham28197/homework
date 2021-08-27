@@ -19,7 +19,7 @@
     <li><a href="/private">Danh sach chi tiet user</a></li>
   </ul>
   {{ if .authinfo }}
-  <h1>Welcome {{ .authinfo.FullName }}</h1>
+  <h1>Welcome {{ .authinfo.Fullname }}</h1>
   <ul>
     {{range .roles}}
       <li>{{.}}</li>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Main page</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+  {{ if .authinfo }}
+  <h1>Welcome {{ .authinfo.Fullname }}</h1>
+  <ul>
+    {{range .roles}}
+      <li>{{.}}</li>
+    {{end}}
+  </ul>
+  <a href="javascript:logout()">Logout</a>
+  {{ else }}
+  <h1>Login using JSON</h1>
+  User : <input type="text" id="Email"> <br>
+  Pass : <input type="text" id="Pass"> <br><br>
+  <button onclick="login();">Login</button>
+  <p id="result"></p>
+  {{ end }}
+
+  <h1>Danh sách User</h1>
+  {{range .users}}
+  <ul>
+    <li>{{.Fullname}}</li>
+    <li>{{.Birthday}}</li>
+    <li>{{.Email}}</li>
+    <li>{{.Job}}</li>
+    <li>{{.Avatar}}</li>
+    <span>=================================</span>
+  </ul>
+  {{end}}
+
+  <h2>Tạo mới user</h2>
+  Email : <input type="text" id="Email"> <br>
+  Fullname : <input type="text" id="Name"> <br>
+  <button onclick="createUser();">Thêm</button>
+  <p id="result"></p>
+
+  <h2>Sửa user</h2>
+  Email : <input type="text" id="EmailEdit"> <br>
+  Fullname : <input type="text" id="NameEdit"> <br>
+  <button onclick="editUser();">Sửa</button>
+  <p id="result"></p>
+
+  <h2>Xóa user</h2>
+  Email : <input type="text" id="EmailDelete"> <br>
+  <button onclick="deleteUser();">Xóa</button>
+  <p id="result"></p>
+
+  <h2>Upload ảnh</h2>
+  <form action="/private/upload" method="post" enctype="multipart/form-data">
+    Email: <input type="text" name="EmailUpload"><br>
+    Photo: <input type="file" id="Photo" name="filename"><br><br>
+  <input type="submit">
+
+  <script>
+    function login() {
+      axios.defaults.withCredentials = true;
+      axios.post('http://localhost:8080/loginjson', {
+        Email: $("#Email").val(),
+        Pass: $("#Pass").val()
+      }).then(response => {
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+    }
+    function logout() {
+      axios.defaults.withCredentials = true;
+      axios.get('http://localhost:8080/logoutjson').then(response => {
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+
+    }
+
+    function createUser() {
+      axios.defaults.withCredentials = true;
+      axios.post('http://localhost:8080/private/create', {
+        Fullname: $("#Name").val(),
+        Email: $("#Email").val(),
+      }).then(response => {
+        //alert('Kết quả tìm kiếm là: ' + response.data);
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+    }
+
+    function editUser() {
+      axios.defaults.withCredentials = true;
+      axios.post('http://localhost:8080/private/edit', {
+        Fullname: $("#NameEdit").val(),
+        Email: $("#EmailEdit").val(),
+      }).then(response => {
+        //alert('Kết quả tìm kiếm là: ' + response.data);
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+    }
+
+    function deleteUser() {
+      axios.defaults.withCredentials = true;
+      axios.post('http://localhost:8080/private/delete', {
+        Email: $("#EmailDelete").val(),
+      }).then(response => {
+        //alert('Kết quả tìm kiếm là: ' + response.data);
+        location.reload();
+      }).catch(response => {
+        $("#result").html(response.data).css('color', 'red');
+      });
+    }
+  </script>
+</body>
+
+</html>
