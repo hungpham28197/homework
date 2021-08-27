@@ -2,10 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"home-work/model"
 	"home-work/repo"
 	"mime/multipart"
 
+	"github.com/TechMaster/core/pass"
 	"github.com/TechMaster/core/pmodel"
 	"github.com/TechMaster/core/rbac"
 	"github.com/TechMaster/core/session"
@@ -38,15 +38,16 @@ func Login(ctx iris.Context) {
 		_, _ = ctx.WriteString("Login Failed")
 		return
 	}
-	if user.Pass != loginRequest.Pass {
+
+	if ok := pass.CheckPassword(loginRequest.Pass, user.Password, ""); ok {
 		_, _ = ctx.WriteString("Wrong password")
 		return
 	}
 
 	session.SetAuthenticated(ctx, pmodel.AuthenInfo{
-		Email: user.Email,
-		User:  user.Fullname,
-		Roles: user.Roles,
+		Email:    user.Email,
+		FullName: user.FullName,
+		Roles:    pmodel.IntArrToRoles(user.Roles),
 	})
 
 	ctx.Redirect("/")
@@ -60,7 +61,7 @@ func ShowHomePage(ctx iris.Context) {
 	_ = ctx.View("public")
 }
 
-func PublicSearchName(ctx iris.Context) {
+func SearchNameByName(ctx iris.Context) {
 	name := ctx.PostValue("Name")
 
 	user, err := repo.QueryByName(name)
@@ -69,7 +70,7 @@ func PublicSearchName(ctx iris.Context) {
 		fmt.Println(err)
 		return
 	}
-	ctx.ViewData("fullnames", []string{user.Fullname})
+	ctx.ViewData("fullnames", []string{user.FullName})
 	_ = ctx.View("public")
 }
 
@@ -78,14 +79,14 @@ func ShowPublicPage(ctx iris.Context) {
 	_ = ctx.View("public")
 }
 
-func PrivateUsers(ctx iris.Context) {
+func GetUsers(ctx iris.Context) {
 	users := repo.GetAllUser()
 	ctx.ViewData("users", users)
 	_ = ctx.View("private")
 }
 
-func PrivateCreateUsers(ctx iris.Context) {
-	var createUserRequest model.User
+func CreateUsers(ctx iris.Context) {
+	var createUserRequest pmodel.User
 
 	if err := ctx.ReadJSON(&createUserRequest); err != nil {
 		logger.Log(ctx, eris.NewFrom(err).BadRequest())
@@ -107,8 +108,8 @@ func PrivateCreateUsers(ctx iris.Context) {
 	_ = ctx.View("private")
 }
 
-func PrivateUpdateUsers(ctx iris.Context) {
-	var createUserRequest model.User
+func UpdateUser(ctx iris.Context) {
+	var createUserRequest pmodel.User
 
 	if err := ctx.ReadJSON(&createUserRequest); err != nil {
 		logger.Log(ctx, eris.NewFrom(err).BadRequest())
@@ -124,8 +125,8 @@ func PrivateUpdateUsers(ctx iris.Context) {
 	_ = ctx.View("private")
 }
 
-func PrivateDeleteUsers(ctx iris.Context) {
-	var userRequest model.User
+func DeleteUser(ctx iris.Context) {
+	var userRequest pmodel.User
 
 	if err := ctx.ReadJSON(&userRequest); err != nil {
 		logger.Log(ctx, eris.NewFrom(err).BadRequest())
@@ -151,20 +152,22 @@ func LoginJSON(ctx iris.Context) {
 
 	user, err := repo.QueryByEmail(loginReq.Email)
 
+	fmt.Println(user)
+
 	if err != nil { //Không tìm thấy user
 		logger.Log(ctx, eris.Warning("User not found").UnAuthorized())
 		return
 	}
 
-	if user.Pass != loginReq.Pass {
+	if !pass.CheckPassword(loginReq.Pass, user.Password, "") {
 		logger.Log(ctx, eris.Warning("Wrong password").UnAuthorized())
 		return
 	}
 
 	session.SetAuthenticated(ctx, pmodel.AuthenInfo{
-		User:  user.Fullname,
+		//FullName: user.FullName,
 		Email: user.Email,
-		Roles: user.Roles,
+		//Roles:    pmodel.IntArrToRoles(user.Roles),
 	})
 	_, _ = ctx.JSON("Login successfully")
 }

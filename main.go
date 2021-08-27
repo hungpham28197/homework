@@ -1,6 +1,7 @@
 package main
 
 import (
+	"home-work/repo"
 	"home-work/router"
 
 	"github.com/TechMaster/core/rbac"
@@ -23,9 +24,11 @@ func main() {
 	})
 	app.UseRouter(crs)
 	app.Use(session.Sess.Handler())
+	repo.Init()
 
 	rbacConfig := rbac.NewConfig()
 	rbacConfig.RootAllow = true
+	rbacConfig.MakeUnassignedRoutePublic = true
 	rbac.Init(rbacConfig) //Khởi động với cấu hình mặc định
 
 	//đặt hàm này trên các hàm đăng ký route - controller

@@ -16,7 +16,7 @@
 
 <body>
   {{ if .authinfo }}
-  <h1>Welcome {{ .authinfo.Fullname }}</h1>
+  <h1>Welcome {{ .authinfo.FullName }}</h1>
   <ul>
     {{range .roles}}
       <li>{{.}}</li>
@@ -34,8 +34,7 @@
   <h1>Danh sách User</h1>
   {{range .users}}
   <ul>
-    <li>{{.Fullname}}</li>
-    <li>{{.Birthday}}</li>
+    <li>{{.FullName}}</li>
     <li>{{.Email}}</li>
     <li>{{.Job}}</li>
     <li>{{.Avatar}}</li>

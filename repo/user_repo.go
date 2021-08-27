@@ -3,125 +3,101 @@ package repo
 import (
 	"errors"
 	"fmt"
-	"home-work/model"
 
+	"github.com/TechMaster/core/pass"
 	"github.com/TechMaster/core/pmodel"
 	"github.com/TechMaster/core/rbac"
 )
 
-var users = []model.User{
-	{
-		Fullname: "Bob",
-		Birthday: "01/06/2000",
-		Sex:      "Male",
-		Job:      "Dev",
-		User: pmodel.User{
-			Email: "bob@gmail.com",
-			Pass:  "1",
-			Roles: pmodel.Roles{rbac.ADMIN: true},
-		},
-	},
+var users = make(map[string]*pmodel.User)
 
-	{
-		Fullname: "Pham Van Long",
-		Birthday: "01/06/1996",
-		Sex:      "Male",
-		Job:      "Dev",
-		User: pmodel.User{
-			Email: "long@gmail.com",
-			Pass:  "1",
-			Roles: pmodel.Roles{rbac.AUTHOR: true},
-		},
-	},
-	{
-		Fullname: "Pham Van Linh",
-		Birthday: "11/05/2001",
-		Sex:      "Male",
-		Job:      "Dev",
-		User: pmodel.User{
-			Email: "linh@gmail.com",
-			Pass:  "1",
-			Roles: pmodel.Roles{rbac.EDITOR: false},
-		},
-	},
+func Init() {
+	CreatNewUser("Trịnh Đình Long", "1", "long@gmail.com", "093023920", rbac.ADMIN)
 }
 
-func QueryByEmail(email string) (user *model.User, err error) {
+func CreatNewUser(name string, password string, email string, phone string, roles ...int) {
+	hashedpass, _ := pass.HashBcryptPass(password)
+	users[email] = &pmodel.User{
+		FullName: name,
+		Password: hashedpass,
+		Email:    email,
+		Phone:    phone,
+		Roles:    roles,
+	}
+}
+
+func QueryByEmail(email string) (user *pmodel.User, err error) {
+	u := users[email]
+	if u == nil {
+		return nil, errors.New("User not found")
+	}
+	return u, nil
+}
+
+func QueryById(email string) (user *pmodel.User, err error) {
+	return nil, errors.New("User not found")
+}
+
+func QueryByName(name string) (user *pmodel.User, err error) {
 	for _, v := range users {
-		if v.Email == email {
-			return &v, nil
+		if v.FullName == name {
+			return v, nil
 		}
 	}
 	return nil, errors.New("User not found")
 }
 
-func QueryByName(name string) (user *model.User, err error) {
-	for _, v := range users {
-		if v.Fullname == name {
-			return &v, nil
-		}
-	}
-	return nil, errors.New("User not found")
-}
-
-func CreateUser(user *model.User) (err error) {
+func CreateUser(user *pmodel.User) (err error) {
 	userTmp, err := QueryByEmail(user.Email)
 	if err == nil {
 		msg := fmt.Sprintf("User %s exit", userTmp.Email)
 		return errors.New(msg)
 	}
-	users = append(users, *user)
+	hashedpass, _ := pass.HashBcryptPass(user.Password)
+	user.Password = hashedpass
+	users[user.Email] = user
 	return nil
 }
 
-func UpdateUser(user *model.User) (err error) {
-	for i := 0; i < len(users); i++ {
-		if users[i].Email == user.Email {
-			p := users[i]
-			p = *user
-			users[i] = p
-			return nil
-		}
+func UpdateUser(user *pmodel.User) (err error) {
+	userTmp, err := QueryByEmail(user.Email)
+	if err != nil {
+		return err
 	}
-	return errors.New("User not found")
+	oldPass := userTmp.Password
+	*userTmp = *user
+	userTmp.Password = oldPass
+	return nil
 }
 
-func DeleteUser(email string) (err error) {
-	index := -1
-	for i := 0; i < len(users); i++ {
-		if users[i].Email == email {
-			index = i
-		}
+func DeleteUser(id string) (err error) {
+	userTmp, err := QueryById(id)
+	if err != nil {
+		return err
 	}
-	if index > 0 {
-		users = append(users[:index], users[index+1:]...)
-		return nil
-	}
-	return errors.New("User not found")
+	delete(users, userTmp.Email)
+	return nil
 }
 
-func GetAllUser() (rs []model.User) {
+func GetAllUser() (rs []pmodel.User) {
 	for _, v := range users {
-		rs = append(rs, v)
+		rs = append(rs, *v)
 	}
 	return
 }
 
 func GetAllFullname() (fullnames []string) {
 	for _, v := range users {
-		fullnames = append(fullnames, v.Fullname)
+		fullnames = append(fullnames, v.FullName)
 	}
 	return
 }
 
-func UpdateAvatarUser(emailUpload string, avatars string) (err error) {
-	for i := 0; i < len(users); i++ {
-		if users[i].Email == emailUpload {
-			p := users[i]
-			p.Avatar = avatars
-			users[i] = p
-			return nil
-		}
+func UpdateAvatarUser(id string, avatars string) (err error) {
+	userTmp, err := QueryById(id)
+	if err != nil {
+		return err
 	}
-	return errors.New("User not found")
+	userTmp.Avatar = avatars
+	return nil
 }
